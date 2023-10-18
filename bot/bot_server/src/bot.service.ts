@@ -6,7 +6,7 @@ import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Cron } from '@nestjs/schedule';
 import { HttpService } from '@nestjs/axios/dist';
-
+const Agent = require('socks5-https-client/lib/Agent');
 @Injectable()
 export class BotService implements OnModuleInit {
   constructor(
@@ -17,13 +17,12 @@ export class BotService implements OnModuleInit {
   token: String;
   bot: any = null;
   city: string = null;
+  TelegramBot = require('node-telegram-bot-api');
   onModuleInit() {
-    const TelegramBot = require('node-telegram-bot-api');
-
     this.token = process.env.TELEGRAM_BOT_TOKEN.toString();
 
     if (this.bot == null)
-      this.bot = new TelegramBot(this.token, { polling: true });
+      this.bot = new this.TelegramBot(this.token, { polling: true });
 
     this.botMessage();
     // this.userModel.deleteMany().exec()
@@ -151,7 +150,7 @@ export class BotService implements OnModuleInit {
       );
   }
 
-  async blockUser(id: string,block:boolean): Promise<Boolean> {
+  async blockUser(id: string, block: boolean): Promise<Boolean> {
     return this.userModel
       .findOneAndUpdate({ id: id }, { isBlocked: block })
       .exec()
@@ -163,6 +162,21 @@ export class BotService implements OnModuleInit {
           return false;
         },
       );
+  }
+
+  async updateKey(key: string): Promise<Boolean> {
+    this.bot = null;
+    this.bot = new this.TelegramBot(key, {
+      polling: true,
+      request: {
+        agentClass: Agent,
+        agentOptions: {
+          socksHost: process.env.PROXY_SOCKS5_HOST,
+          socksPort: parseInt(process.env.PROXY_SOCKS5_PORT),
+        },
+      },
+    });
+    return this.bot != null;
   }
 
   async handleBlockedUser(id: string): Promise<boolean> {

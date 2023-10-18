@@ -85,58 +85,67 @@ export const UserList = () => {
   };
 
   return (
-    <div style={{"width":"100%"}}>
-      <h1>User List</h1>
-      <Table borderless hover variant="dark">
-        <thead>
-          <tr className="text-center">
-            <th className="text-center">ID</th>
-            <th>First Name</th>
-            <th>City</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr className="text-center">
-              <td>{user.id}</td>
-              <td>{user.name}</td>
-              <td>{user.city}</td>
-              <td className="d-flex justify-content-evenly">
-                <Tooltip title="Delete User">
-                  <IconButton color="primary" onClick={(_) => deleteUser(user)}>
-                    <DeleteIcon color="primary" />
-                  </IconButton>
-                </Tooltip>
+    <div style={{ width: "100%" }}>
+      {users.length == 0 ? (
+        <h3>No user has subscribed yet</h3>
+      ) : (
+        <>
+          <h1>User List</h1>
+          <Table borderless hover variant="dark">
+            <thead>
+              <tr className="text-center">
+                <th className="text-center">ID</th>
+                <th>First Name</th>
+                <th>City</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr className="text-center">
+                  <td>{user.id}</td>
+                  <td>{user.name}</td>
+                  <td>{user.city}</td>
+                  <td className="d-flex justify-content-evenly">
+                    <Tooltip title="Delete User">
+                      <IconButton
+                        color="primary"
+                        onClick={(_) => deleteUser(user)}
+                      >
+                        <DeleteIcon color="primary" />
+                      </IconButton>
+                    </Tooltip>
 
-                {user.isBlocked != true ? (
-                  <>
-                    <Tooltip title="Block User">
-                      <IconButton
-                        color="warning"
-                        onClick={(_) => blockUser(user)}
-                      >
-                        <BlockIcon color="warning" />
-                      </IconButton>
-                    </Tooltip>
-                  </>
-                ) : (
-                  <>
-                    <Tooltip title="Unblock User">
-                      <IconButton
-                        color="success"
-                        onClick={(_) => unblockUser(user)}
-                      >
-                        <CgUnblock color="success" />
-                      </IconButton>
-                    </Tooltip>
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+                    {user.isBlocked != true ? (
+                      <>
+                        <Tooltip title="Block User">
+                          <IconButton
+                            color="warning"
+                            onClick={(_) => blockUser(user)}
+                          >
+                            <BlockIcon color="warning" />
+                          </IconButton>
+                        </Tooltip>
+                      </>
+                    ) : (
+                      <>
+                        <Tooltip title="Unblock User">
+                          <IconButton
+                            color="success"
+                            onClick={(_) => unblockUser(user)}
+                          >
+                            <CgUnblock color="success" />
+                          </IconButton>
+                        </Tooltip>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </>
+      )}
     </div>
   );
 };

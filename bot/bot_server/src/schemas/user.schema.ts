@@ -18,4 +18,8 @@ export class User {
   isBlocked: boolean;
 }
 
+export class Key {
+  readonly key: string;
+}
+
 export const UserSchema = SchemaFactory.createForClass(User);

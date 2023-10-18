@@ -6,7 +6,7 @@ const NavBar = () => {
   const { logout, user, isAuthenticated } = useAuth0();
 
   return (
-    <Navbar fixed="top" className="bg-body-tertiary">
+    <Navbar fixed="top" className="navbar navbar-expand-lg bg-body-tertiary justify-content-evenly">
       <Container>
         <Navbar.Brand href="">Telegram Bot Admin Panel</Navbar.Brand>
         <Navbar.Toggle />
@@ -19,7 +19,7 @@ const NavBar = () => {
 
           {isAuthenticated && (
             <Button
-              className="ml-1"
+              className="ms-4"
               variant="dark"
               onClick={() =>
                 logout({ logoutParams: { returnTo: window.location.origin } })

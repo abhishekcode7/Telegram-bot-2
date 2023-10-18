@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { AppService } from './app.service';
 import { BotService } from './bot.service';
-import { User } from './schemas/user.schema';
+import { Key, User } from './schemas/user.schema';
 
 @Controller('api')
 export class AppController {
@@ -25,5 +25,10 @@ export class AppController {
   @Post('unblockUser')
   async unblockUser(@Body() body: User): Promise<Boolean> {
     return await this.appService.blockUser(body.id,false);
+  }
+
+  @Post('updateKey')
+  async updateKey(@Body() body: Key): Promise<Boolean> {
+    return await this.appService.updateKey(body.key);
   }
 }
