@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "dev":"turbo run dev",
-    "build":"turbo run build",
+    "build":"npm install && turbo run build",
     "start":"node bot/bot_server/dist/main"
   }
 }
