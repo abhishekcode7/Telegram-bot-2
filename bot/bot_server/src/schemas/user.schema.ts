@@ -13,6 +13,9 @@ export class User {
 
   @Prop()
   city: string;
+
+  @Prop()
+  isBlocked: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

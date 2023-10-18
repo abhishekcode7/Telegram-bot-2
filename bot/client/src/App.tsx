@@ -1,14 +1,20 @@
 import "./App.css";
 import { useAuth0 } from "@auth0/auth0-react";
 import { UserList } from "./components/UserList";
+import "bootstrap/dist/css/bootstrap.min.css";
+import NavBar from "./components/NavBar";
+import Spinner from "react-bootstrap/Spinner";
 
 function App() {
-  const { isAuthenticated, loginWithRedirect } = useAuth0();
+  const { isAuthenticated, loginWithRedirect, isLoading } = useAuth0();
   return (
     <>
-      {isAuthenticated == true ? (
-        <UserList />
-      ) : (
+      <NavBar />
+      {isLoading == true && isAuthenticated == false && (
+        <Spinner animation="border" />
+      )}
+      {isLoading == false && isAuthenticated == true && <UserList />}
+      {isLoading == false && isAuthenticated == false && (
         <button onClick={() => loginWithRedirect()}>Log in</button>
       )}
     </>

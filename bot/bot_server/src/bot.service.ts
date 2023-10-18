@@ -31,59 +31,72 @@ export class BotService implements OnModuleInit {
 
   botMessage() {
     this.bot.onText(/\/start/, (msg, match) => {
-      this.findUser(msg.from.id.toString()).then((user) => {
-        if (user == null) {
-          this.bot.sendMessage(
-            msg.from.id,
-            'Hello ' +
-              msg.from.first_name +
-              ', I am weather forecast Bot. Type " /subscribe <city_name> "' +
-              ' ( without double quotes ) ' +
-              'to get ' +
-              'daily weather updates',
-          );
-        }
+      this.handleBlockedUser(msg.from.id).then((isBlocked) => {
+        if (isBlocked == true) return;
+
+        this.findUser(msg.from.id.toString()).then((user) => {
+          if (user == null) {
+            this.bot.sendMessage(
+              msg.from.id,
+              'Hello ' +
+                msg.from.first_name +
+                ', I am weather forecast Bot. Type " /subscribe <city_name> "' +
+                ' ( without double quotes ) ' +
+                'to get ' +
+                'daily weather updates',
+            );
+          }
+        });
       });
     });
 
     this.bot.onText(/\/subscribe (.+)/, (msg, match) => {
-      this.city = match[1];
-      this.saveUser({
-        id: msg.from.id.toString(),
-        name: msg.from.first_name,
-        city: this.city,
-      }).then(
-        (_) => {
-          this.bot.sendMessage(
-            msg.from.id,
-            msg.from.first_name +
-              ' you have subscribed to the weather updates.' +
-              ' Thank You',
-          );
-        },
-        (_) => {
-          this.bot.sendMessage(
-            msg.from.id,
-            'Subscribe Failed. Please try again /subscribe',
-          );
-        },
-      );
+      this.handleBlockedUser(msg.from.id).then((isBlocked) => {
+        if (isBlocked == true) return;
 
-      this.findAll().then((r) => {
-        console.log(r);
+        this.city = match[1];
+        this.saveUser({
+          id: msg.from.id.toString(),
+          name: msg.from.first_name,
+          city: this.city,
+          isBlocked: false,
+        }).then(
+          (_) => {
+            this.bot.sendMessage(
+              msg.from.id,
+              msg.from.first_name +
+                ' you have subscribed to the weather updates.' +
+                ' Thank You',
+            );
+          },
+          (_) => {
+            this.bot.sendMessage(
+              msg.from.id,
+              'Subscribe Failed. Please try again /subscribe',
+            );
+          },
+        );
+
+        this.findAll().then((r) => {
+          console.log(r);
+        });
       });
     });
 
     this.bot.onText(/\/leave/, (msg, match) => {
-      this.findUser(msg.from.id.toString()).then((user) => {
-        if (user != null) {
-          this.deleteUser(msg.from.id.toString());
-        } else {
-          this.bot.sendMessage(
-            msg.from.id,
-            'You are not subscribed to weather updates.',
-          );
-        }
+      this.handleBlockedUser(msg.from.id).then((isBlocked) => {
+        if (isBlocked == true) return;
+
+        this.findUser(msg.from.id.toString()).then((user) => {
+          if (user != null) {
+            this.deleteUser(msg.from.id.toString());
+          } else {
+            this.bot.sendMessage(
+              msg.from.id,
+              'You are not subscribed to weather updates.',
+            );
+          }
+        });
       });
     });
   }
@@ -122,6 +135,45 @@ export class BotService implements OnModuleInit {
         );
       },
     );
+  }
+
+  async deleteUserFromDb(id: String): Promise<Boolean> {
+    return this.userModel
+      .deleteOne({ id: id })
+      .exec()
+      .then(
+        (res) => {
+          return true;
+        },
+        () => {
+          return false;
+        },
+      );
+  }
+
+  async blockUser(id: string,block:boolean): Promise<Boolean> {
+    return this.userModel
+      .findOneAndUpdate({ id: id }, { isBlocked: block })
+      .exec()
+      .then(
+        () => {
+          return true;
+        },
+        () => {
+          return false;
+        },
+      );
+  }
+
+  async handleBlockedUser(id: string): Promise<boolean> {
+    const r = await this.findAll();
+    r.forEach((user) => {
+      if (user.id == id && user.isBlocked == true) {
+        this.bot.sendMessage(id, 'You have been blocked by the admin');
+        return user.isBlocked;
+      }
+    });
+    return false;
   }
 
   @Cron('0 0 8 * * *', {
